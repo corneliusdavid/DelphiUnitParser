@@ -3,7 +3,7 @@ object frmUnitListMain: TfrmUnitListMain
   Top = 0
   Caption = 'Delphi Project Unit Parser'
   ClientHeight = 484
-  ClientWidth = 665
+  ClientWidth = 767
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,18 +17,18 @@ object frmUnitListMain: TfrmUnitListMain
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 665
+    Width = 767
     Height = 41
     Align = alTop
     BevelOuter = bvLowered
     TabOrder = 0
     DesignSize = (
-      665
+      767
       41)
     object edtProjectToParse: TDBLabeledEdit
       Left = 128
       Top = 10
-      Width = 459
+      Width = 561
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
@@ -38,7 +38,7 @@ object frmUnitListMain: TfrmUnitListMain
       LabelPosition = lpLeft
     end
     object btnFindProject: TButton
-      Left = 593
+      Left = 695
       Top = 9
       Width = 66
       Height = 25
@@ -131,14 +131,14 @@ object frmUnitListMain: TfrmUnitListMain
       Height = 17
       Align = alTop
       Alignment = taCenter
-      Caption = 'Project Units'
+      Caption = 'Explicit Project Units'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
-      ExplicitWidth = 79
+      ExplicitWidth = 128
     end
     object lbProjUnits: TListBox
       Left = 1
@@ -172,6 +172,61 @@ object frmUnitListMain: TfrmUnitListMain
       end
     end
   end
+  object pnlAllUsedUnits: TPanel
+    Left = 433
+    Top = 41
+    Width = 284
+    Height = 443
+    Align = alLeft
+    TabOrder = 3
+    object Label3: TLabel
+      Left = 1
+      Top = 1
+      Width = 282
+      Height = 17
+      Align = alTop
+      Alignment = taCenter
+      Caption = 'All Used Units'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Segoe UI'
+      Font.Style = [fsBold]
+      ParentFont = False
+      ExplicitWidth = 87
+    end
+    object lbAllUsedUnits: TListBox
+      Left = 1
+      Top = 18
+      Width = 282
+      Height = 382
+      Align = alClient
+      ItemHeight = 15
+      Sorted = True
+      TabOrder = 0
+    end
+    object Panel2: TPanel
+      Left = 1
+      Top = 400
+      Width = 282
+      Height = 42
+      Align = alBottom
+      BevelOuter = bvLowered
+      TabOrder = 1
+      DesignSize = (
+        282
+        42)
+      object btnAllUnits: TButton
+        Left = 72
+        Top = 5
+        Width = 137
+        Height = 33
+        Action = actGetAllUsedUnits
+        Anchors = [akTop]
+        TabOrder = 0
+      end
+    end
+  end
   object actUnitList: TActionList
     Left = 208
     Top = 272
@@ -190,6 +245,10 @@ object frmUnitListMain: TfrmUnitListMain
     object actGetProjectUnits: TAction
       Caption = '&Refresh Project Units'
       OnExecute = actGetProjectUnitsExecute
+    end
+    object actGetAllUsedUnits: TAction
+      Caption = 'Refresh All Units'
+      OnExecute = actGetAllUsedUnitsExecute
     end
   end
   object dlgFindProject: TOpenDialog

@@ -14,13 +14,17 @@ type
       FDone: Boolean;
       FOnUsesFound: TGetStrProc;
       FInKeywordFound: Boolean;
+      FInComment: Boolean;
+      FInCurlyComment: Boolean;
     procedure ProcessLine(const ALine: string);
     function StripComments(const ALine: string): string;
     function StipQuotes(const ALine: string): string;
   protected
     procedure DoUsesFound(const UsesName: string);
   public
+    constructor Create;
     procedure ProcessProjectUses(const ProjFilename: string);
+    procedure ProcessUsedUses(const UnitFilename: string);
     property OnUsesFound: TGetStrProc read FOnUsesFound write FOnUsesFound;
     property InKeywordFound: Boolean read FInKeywordFound write FInKeywordFound;
   end;
@@ -31,6 +35,14 @@ implementation
 
 uses
   SysUtils, StrUtils;
+
+constructor TParseUses.Create;
+begin
+  inherited;
+
+  FInComment := False;
+  FInCurlyComment := False;
+end;
 
 procedure TParseUses.DoUsesFound(const UsesName: string);
 begin
@@ -44,31 +56,26 @@ begin
 end;
 
 function TParseUses.StripComments(const ALine: string): string;
-var
-  InComment: Boolean;
-  InCurlyComment: Boolean;
 begin
   Result := EmptyStr;
-  InComment := False;
-  InCurlyComment := False;
 
   for var i := 1 to ALine.Length do begin
     if ALine[i] = '{' then
-      InCurlyComment := True
-    else if ALine[i] = '}' then begin
-      InCurlyComment := False;
+      FInCurlyComment := True
+    else if (ALine[i] = '}') and FInCurlyComment then begin
+      FInCurlyComment := False;
       Continue;
     end else if StartsStr('(*', Copy(ALine, i, ALine.Length)) then
-      InComment := True
+      FInComment := True
     else if StartsStr('*)', Copy(ALine, i, ALine.Length)) then begin
-      InCurlyComment := False;
-      InComment := False;
+      FInCurlyComment := False;
+      FInComment := False;
       Continue;
-    end else if (not InCurlyComment) and (not InComment) and StartsStr('//', Copy(ALine, i, ALine.Length)) then
+    end else if (not FInCurlyComment) and (not FInComment) and StartsStr('//', Copy(ALine, i, ALine.Length)) then
       // double-slash is a comment for the rest of the line, so we're done with this line
       Break;
 
-    if (not InComment) and (not InCurlyComment) then
+    if (not FInComment) and (not FInCurlyComment) then
       Result := Result + ALine[i];
   end;
 end;
@@ -82,9 +89,9 @@ begin
   LineParts := TStringList.Create;
   try
     FInKeywordFound := False;
-    LineParts.CommaText := ALine;
+    LineParts.CommaText := StripComments(ALine);
     for var i := 0 to LineParts.Count - 1 do begin
-      CurrLine := StripComments(LineParts[i]);
+      CurrLine := LineParts[i];
       IsUsesLine := SameText(CurrLine, 'uses');
 
       if (not FInUses) and IsUsesLine then begin
@@ -139,5 +146,30 @@ begin
   end;
 end;
 
+
+procedure TParseUses.ProcessUsedUses(const UnitFilename: string);
+var
+  UnitLines: TStringList;
+begin
+  UnitLines := TStringList.Create;
+  try
+    UnitLines.LoadFromFile(UnitFilename);
+
+    FUseSectionCount := 0;
+    FInUses := False;
+    FDone := False;
+    for var i := 0 to UnitLines.Count - 1 do begin
+      // process a line of the project, looking and parsing USES units
+      ProcessLine(TrimLeft(UnitLines[i]));
+
+      // unit files have two USES section, interface and implementation;
+      // so we're not done until the UseSectionCount has been incremented twice
+      if (not FInUses) and (FUseSectionCount > 1) then
+        Break;
+    end;
+  finally
+    UnitLines.Free;
+  end;
+end;
 
 end.

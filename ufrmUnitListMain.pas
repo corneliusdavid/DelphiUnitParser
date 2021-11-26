@@ -30,18 +30,26 @@ type
     actGetProjectUnits: TAction;
     pnlProjBottom: TPanel;
     btnProjUnits: TButton;
+    pnlAllUsedUnits: TPanel;
+    Label3: TLabel;
+    lbAllUsedUnits: TListBox;
+    Panel2: TPanel;
+    btnAllUnits: TButton;
+    actGetAllUsedUnits: TAction;
     procedure actAddIgnoreUnitExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure actDelIgnoreUnitExecute(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure actFindProjectExecute(Sender: TObject);
     procedure actGetProjectUnitsExecute(Sender: TObject);
+    procedure actGetAllUsedUnitsExecute(Sender: TObject);
   private
     const
       IGNORELIST_FILENAME = 'IgnoreList.txt';
     var
       FProjectPath: string;
     procedure AddProjectUses(const UsesName: string);
+    procedure AddAllUses(const UsesName: string);
     procedure SaveIgnoreList;
     procedure LoadIgnoreList;
     procedure LoadStuff;
@@ -80,6 +88,29 @@ begin
     edtProjectToParse.Text := dlgFindProject.FileName;
 end;
 
+procedure TfrmUnitListMain.actGetAllUsedUnitsExecute(Sender: TObject);
+var
+  CurrUnit: string;
+begin
+  lbAllUsedUnits.Items.Clear;
+
+  for var i := 0 to lbProjUnits.Items.Count - 1 do begin
+    CurrUnit := lbProjUnits.Items[i];
+    if not TFile.Exists(CurrUnit) then
+      CurrUnit := TPath.Combine(FProjectPath, CurrUnit);
+
+    if TFile.Exists(CurrUnit) then begin
+      var ParseUses := TParseUses.Create;
+      try
+        ParseUses.OnUsesFound := AddAllUses;
+        ParseUses.ProcessUsedUses(CurrUnit);
+      finally
+        ParseUses.Free;
+      end;
+    end;
+  end;
+end;
+
 procedure TfrmUnitListMain.actGetProjectUnitsExecute(Sender: TObject);
 var
   s: string;
@@ -100,6 +131,21 @@ begin
       end;
     end else
       ShowMessage('Cannot find project file: ' + s);
+  end;
+end;
+
+procedure TfrmUnitListMain.AddAllUses(const UsesName: string);
+begin
+  if (lbIgnoreList.Items.IndexOf(UsesName) = -1) and (not UsesName.IsEmpty) then begin
+    // if a uses entry is in the form: MyUnit in 'MyUnit.pas'
+    // then delete the previous entry as it was just the base name
+    var basename: string;
+    basename := ChangeFileExt(ExtractFileName(UsesName), '');
+    var baseidx := lbAllUsedUnits.Items.IndexOf(basename);
+    if baseidx <> -1 then
+      lbAllUsedUnits.Items.Delete(baseidx);
+
+    lbAllUsedUnits.Items.Add(UsesName);
   end;
 end;
 
