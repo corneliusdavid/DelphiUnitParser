@@ -16,7 +16,7 @@ type
       FInKeywordFound: Boolean;
       FInComment: Boolean;
       FInCurlyComment: Boolean;
-    procedure ProcessLine(const ALine: string);
+    procedure ProcessLine(const ALine: string; const ARelPath: string = '');
     function StripComments(const ALine: string): string;
     function StipQuotes(const ALine: string): string;
   protected
@@ -24,7 +24,7 @@ type
   public
     constructor Create;
     procedure ProcessProjectUses(const ProjFilename: string);
-    procedure ProcessUsedUses(const UnitFilename: string);
+    procedure ProcessUsedUses(const ProjPath, UnitFilename: string);
     property OnUsesFound: TGetStrProc read FOnUsesFound write FOnUsesFound;
     property InKeywordFound: Boolean read FInKeywordFound write FInKeywordFound;
   end;
@@ -34,7 +34,7 @@ implementation
 { TParseUses }
 
 uses
-  SysUtils, StrUtils;
+  SysUtils, StrUtils, IOUtils;
 
 constructor TParseUses.Create;
 begin
@@ -80,10 +80,10 @@ begin
   end;
 end;
 
-procedure TParseUses.ProcessLine(const ALine: string);
+procedure TParseUses.ProcessLine(const ALine: string; const ARelPath: string = '');
 var
   LineParts: TStringList;
-  CurrLine: string;
+  CurrUnit: string;
   IsUsesLine: Boolean;
 begin
   LineParts := TStringList.Create;
@@ -91,26 +91,29 @@ begin
     FInKeywordFound := False;
     LineParts.CommaText := StripComments(ALine);
     for var i := 0 to LineParts.Count - 1 do begin
-      CurrLine := LineParts[i];
-      IsUsesLine := SameText(CurrLine, 'uses');
+      CurrUnit := LineParts[i];
+      IsUsesLine := SameText(CurrUnit, 'uses');
 
       if (not FInUses) and IsUsesLine then begin
         FInUses := True;
         Inc(FUseSectionCount);
       end;
 
-      if (not IsUsesLine) and (not CurrLine.IsEmpty) then begin
+      if (not IsUsesLine) and (not CurrUnit.IsEmpty) then begin
         if FInUses then begin
-          CurrLine := StipQuotes(CurrLine);
-          if SameText(CurrLine, 'in') then
+          CurrUnit := StipQuotes(CurrUnit);
+          if SameText(CurrUnit, 'in') then
             FInKeywordFound := True;
-          if not SameText(CurrLine, 'in') then begin
-            if CurrLine.Contains(';') then begin
-              CurrLine := CurrLine.Replace(';', ' ').Trim;
+          if not SameText(CurrUnit, 'in') then begin
+            if CurrUnit.Contains(';') then begin
+              CurrUnit := CurrUnit.Replace(';', ' ').Trim;
               FInUses := False;
             end;
 
-            DoUsesFound(CurrLine);
+            if ARelPath.IsEmpty then
+              DoUsesFound(CurrUnit)
+            else
+              DoUsesFound(TPath.Combine(ARelPath, CurrUnit));
           end;
         end;
       end;
@@ -147,20 +150,22 @@ begin
 end;
 
 
-procedure TParseUses.ProcessUsedUses(const UnitFilename: string);
+procedure TParseUses.ProcessUsedUses(const ProjPath, UnitFilename: string);
 var
   UnitLines: TStringList;
+  RelativePath: string;
 begin
   UnitLines := TStringList.Create;
   try
-    UnitLines.LoadFromFile(UnitFilename);
+    UnitLines.LoadFromFile(TPath.Combine(ProjPath, UnitFilename));
 
+    RelativePath := ExtractFilePath(UnitFilename);
     FUseSectionCount := 0;
     FInUses := False;
     FDone := False;
     for var i := 0 to UnitLines.Count - 1 do begin
       // process a line of the project, looking and parsing USES units
-      ProcessLine(TrimLeft(UnitLines[i]));
+      ProcessLine(TrimLeft(UnitLines[i]), RelativePath);
 
       // unit files have two USES section, interface and implementation;
       // so we're not done until the UseSectionCount has been incremented twice

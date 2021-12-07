@@ -2,8 +2,8 @@ object frmUnitListMain: TfrmUnitListMain
   Left = 0
   Top = 0
   Caption = 'Delphi Project Unit Parser'
-  ClientHeight = 484
-  ClientWidth = 767
+  ClientHeight = 617
+  ClientWidth = 891
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,18 +17,18 @@ object frmUnitListMain: TfrmUnitListMain
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 767
+    Width = 891
     Height = 41
     Align = alTop
     BevelOuter = bvLowered
     TabOrder = 0
     DesignSize = (
-      767
+      891
       41)
     object edtProjectToParse: TDBLabeledEdit
       Left = 128
       Top = 10
-      Width = 561
+      Width = 685
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
@@ -38,7 +38,7 @@ object frmUnitListMain: TfrmUnitListMain
       LabelPosition = lpLeft
     end
     object btnFindProject: TButton
-      Left = 695
+      Left = 819
       Top = 9
       Width = 66
       Height = 25
@@ -51,7 +51,7 @@ object frmUnitListMain: TfrmUnitListMain
     Left = 0
     Top = 41
     Width = 149
-    Height = 443
+    Height = 576
     Align = alLeft
     TabOrder = 1
     object Label1: TLabel
@@ -72,7 +72,7 @@ object frmUnitListMain: TfrmUnitListMain
     end
     object pnlIgnoreMod: TPanel
       Left = 1
-      Top = 362
+      Top = 495
       Width = 147
       Height = 80
       Align = alBottom
@@ -110,7 +110,7 @@ object frmUnitListMain: TfrmUnitListMain
       Left = 1
       Top = 18
       Width = 147
-      Height = 344
+      Height = 477
       Align = alClient
       ItemHeight = 15
       Sorted = True
@@ -121,7 +121,7 @@ object frmUnitListMain: TfrmUnitListMain
     Left = 149
     Top = 41
     Width = 284
-    Height = 443
+    Height = 576
     Align = alLeft
     TabOrder = 2
     object Label2: TLabel
@@ -144,7 +144,7 @@ object frmUnitListMain: TfrmUnitListMain
       Left = 1
       Top = 18
       Width = 282
-      Height = 382
+      Height = 515
       Align = alClient
       ItemHeight = 15
       Sorted = True
@@ -152,7 +152,7 @@ object frmUnitListMain: TfrmUnitListMain
     end
     object pnlProjBottom: TPanel
       Left = 1
-      Top = 400
+      Top = 533
       Width = 282
       Height = 42
       Align = alBottom
@@ -176,7 +176,7 @@ object frmUnitListMain: TfrmUnitListMain
     Left = 433
     Top = 41
     Width = 284
-    Height = 443
+    Height = 576
     Align = alLeft
     TabOrder = 3
     object Label3: TLabel
@@ -186,20 +186,20 @@ object frmUnitListMain: TfrmUnitListMain
       Height = 17
       Align = alTop
       Alignment = taCenter
-      Caption = 'All Used Units'
+      Caption = 'Implicit Project Units'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
-      ExplicitWidth = 87
+      ExplicitWidth = 130
     end
     object lbAllUsedUnits: TListBox
       Left = 1
       Top = 18
       Width = 282
-      Height = 382
+      Height = 515
       Align = alClient
       ItemHeight = 15
       Sorted = True
@@ -207,7 +207,7 @@ object frmUnitListMain: TfrmUnitListMain
     end
     object Panel2: TPanel
       Left = 1
-      Top = 400
+      Top = 533
       Width = 282
       Height = 42
       Align = alBottom
